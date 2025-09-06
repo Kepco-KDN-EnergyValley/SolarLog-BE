@@ -1,0 +1,14 @@
+### 회원가입 API 테스트
+POST http://localhost:8080/api/v1/member/signup
+Content-Type: application/json
+
+{
+  "userId": "my_new_user",
+  "password": "my_password123",
+  "modelName": "모델123",
+  "maker": "제조사A",
+  "serialNum": "SN-0001",
+  "installDate": "2025-09-01",
+  "installLocation": "서울특별시",
+  "initialPower": 500.5
+}
