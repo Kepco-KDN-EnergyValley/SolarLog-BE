@@ -1,38 +1,40 @@
 package com.solarsido.solarlog_be.auth;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import java.util.Date;
+import javax.annotation.PostConstruct;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
-import java.nio.charset.StandardCharsets;
 
 @Component
 public class JwtTokenProvider {
 
-  private final SecretKey key;
-  private final long tokenValidityInMilliseconds = 3600000;
+  private final long tokenValidityInMilliseconds = 3600000; // 1시간
 
-  public JwtTokenProvider(@Value("${jwt.secret-key}") String secretKey) {
-    this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+  @Value("${jwt.secret-key}")
+  private String secretKeyBase64;
+
+  private SecretKey key;
+
+  // 실행 시점에 Base64 디코딩해서 SecretKey 생성
+  @PostConstruct
+  public void init() {
+    byte[] keyBytes = Decoders.BASE64.decode(secretKeyBase64);
+    this.key = Keys.hmacShaKeyFor(keyBytes);
   }
 
   // JWT 토큰 생성
   public String createToken(String userId) {
-    Claims claims = Jwts.claims()
-        .setSubject(userId)
-        .build();
     Date now = new Date();
     Date validity = new Date(now.getTime() + tokenValidityInMilliseconds);
 
     return Jwts.builder()
-        .setClaims(claims)
-        .setIssuedAt(now)
-        .setExpiration(validity)
+        .subject(userId)        // "sub" claim
+        .issuedAt(now)
+        .expiration(validity)
         .signWith(key)
         .compact();
   }

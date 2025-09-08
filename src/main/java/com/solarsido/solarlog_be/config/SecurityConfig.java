@@ -24,7 +24,7 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화 (API 서버이므로)
         .authorizeHttpRequests(authorize -> authorize
             // 공개 API (인증 없이 접근 허용)
-            .requestMatchers("/api/v1/signup", "/api/v1/signup/check-id", "/api/v1/users/login").permitAll()
+            .requestMatchers("/api/v1/signup", "/api/v1/signup/check-id", "/api/v1/users/login","/api/v1/fcm/**").permitAll()
             // 그 외 모든 요청은 인증 필요
             .anyRequest().authenticated()
         );
