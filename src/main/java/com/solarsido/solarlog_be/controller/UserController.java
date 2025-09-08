@@ -1,28 +1,31 @@
 package com.solarsido.solarlog_be.controller;
 
 import com.solarsido.solarlog_be.dto.member.CheckIdRequestDto;
-import com.solarsido.solarlog_be.dto.member.MemberJoinRequestDto;
-import com.solarsido.solarlog_be.service.MemberService;
+import com.solarsido.solarlog_be.dto.member.UserJoinRequestDto;
+import com.solarsido.solarlog_be.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.solarsido.solarlog_be.dto.member.LoginRequestDto;
 
+//JWT 추가
+import com.solarsido.solarlog_be.auth.JwtTokenDto;
+
 @RestController
 @RequiredArgsConstructor
-public class MemberController {
+public class UserController {
 
-  private final MemberService memberService;
+  private final UserService memberService;
 
-  // 1. 회원가입 API (URL 수정)
+  // 1. 회원가입 API
   @PostMapping("/api/v1/signup")
-  public ResponseEntity<String> join(@RequestBody MemberJoinRequestDto requestDto) {
+  public ResponseEntity<String> join(@RequestBody UserJoinRequestDto requestDto) {
     memberService.join(requestDto);
     return new ResponseEntity<>("회원가입이 완료되었습니다.", HttpStatus.CREATED);
   }
 
-  // 2. 아이디 중복 확인 API (URL 수정)
+  // 2. 아이디 중복 확인 API
   @GetMapping("/api/v1/signup/check-id")
   public ResponseEntity<String> checkDuplication(@RequestParam String userId) {
     boolean isDuplicated = memberService.checkUserIdDuplication(new CheckIdRequestDto(userId));
@@ -34,14 +37,14 @@ public class MemberController {
     }
   }
 
-  // 3. 로그인 API 추가 (URL 수정)
+  // 3. 로그인 API 추가
   @PostMapping("/api/v1/users/login")
-  public ResponseEntity<String> login(@RequestBody LoginRequestDto requestDto) {
+  public ResponseEntity<JwtTokenDto> login(@RequestBody LoginRequestDto requestDto) {
     try {
-      String loggedInUserId = memberService.login(requestDto);
-      return new ResponseEntity<>("로그인에 성공했습니다. 사용자: " + loggedInUserId, HttpStatus.OK);
+      JwtTokenDto jwtTokenDto = memberService.login(requestDto); // DTO를 직접 받아옴
+      return new ResponseEntity<>(jwtTokenDto, HttpStatus.OK);
     } catch (IllegalArgumentException e) {
-      return new ResponseEntity<>("로그인 실패: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
+      return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
     }
   }
 }
