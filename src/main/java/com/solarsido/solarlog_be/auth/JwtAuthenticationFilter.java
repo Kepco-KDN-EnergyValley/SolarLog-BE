@@ -23,20 +23,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final CustomUserDetailsService customUserDetailsService;
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+
     String token = resolveToken(request);
-    try {
-      if (token != null && jwtTokenProvider.validateToken(token)) {
+
+    if (token != null && jwtTokenProvider.validateToken(token)) {
+      try {
         String userId = jwtTokenProvider.getUserId(token);
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(userId);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
+      } catch (Exception e) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 반환
+        return;
       }
-    } catch (Exception e) {
-      System.err.println("인증 실패: " + e.getMessage()); // 디버깅용 로그
-      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 오류 반환
-      return;
     }
 
     filterChain.doFilter(request, response);

@@ -3,6 +3,8 @@ package com.solarsido.solarlog_be.dto.member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.time.LocalDate;
+
 
 @Getter // 모든 필드의 Getter 메소드를 자동 생성
 @NoArgsConstructor // 기본 생성자 자동 생성
@@ -17,7 +19,7 @@ public class UserJoinRequestDto {
   private String modelName;
   private String maker;
   private String serialNum;
-  private String installDate;
+  private LocalDate installDate;
   private String installLocation;
   private float initialPower;
 
