@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.solarsido.solarlog_be.dto.member.LoginRequestDto;
+import com.solarsido.solarlog_be.entity.SolarPanel;
+import com.solarsido.solarlog_be.repository.SolarPanelRepository;
+
 
 //JWT 추가
 import com.solarsido.solarlog_be.auth.JwtTokenProvider;
@@ -22,21 +25,38 @@ public class UserService {
   private final UserRepository memberRepository;
   private final JwtTokenProvider jwtTokenProvider;
   private final PasswordEncoder passwordEncoder;
+  private final SolarPanelRepository solarPanelRepository;
 
-  @Transactional // 이 메소드 내부의 작업들이 하나의 트랜잭션으로 처리됨을 보장
+  @Transactional
   public void join(UserJoinRequestDto requestDto) {
     // 1. 아이디 중복 확인
     if (memberRepository.existsByUserId(requestDto.getUserId())) {
       throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
     }
 
-    // 2. DTO를 Entity로 변환 (비밀번호 암호화 로직 추가)
-    String encodedPassword = passwordEncoder.encode(requestDto.getPassword()); // 비밀번호 암호화
+    // 2. 유저 저장
+    String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
     User member = new User(requestDto.getUserId(), encodedPassword);
-
-    // 3. Repository를 통해 DB에 저장
     memberRepository.save(member);
+
+    // 3. 패널 저장 (요청 DTO에서 가져온 값으로 생성)
+    SolarPanel panel = new SolarPanel(
+        null, // PK 자동 생성
+        requestDto.getModelName(),
+        requestDto.getMaker(),
+        requestDto.getSerialNum(),
+        requestDto.getInstallDate(),
+        requestDto.getInstallLocation(),
+        0,                           // pollutionCount 초기값
+        0,                           // faultCount 초기값
+        requestDto.getInitialPower(),// initialPower
+        100,                         // leftLife (임의 기본값, 계산 로직 필요하면 수정)
+        requestDto.getInitialPower(),// capability (여기선 initialPower를 그대로 capability로 저장 예시)
+        member                       // User 매핑
+    );
+    solarPanelRepository.save(panel);
   }
+
 
   @Transactional(readOnly = true) // 데이터 변경 없이 조회만 할 때 사용합니다.
   public boolean checkUserIdDuplication(CheckIdRequestDto requestDto) {

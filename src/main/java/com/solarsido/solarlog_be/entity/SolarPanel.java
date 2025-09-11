@@ -24,9 +24,9 @@ public class SolarPanel {
   private String installLocation;
   private int pollutionCount;
   private int faultCount;
-  private double initialPower;
-  private double leftLife;
-  private double capability;
+  private float initialPower;
+  private int leftLife;
+  private float capability;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id")
