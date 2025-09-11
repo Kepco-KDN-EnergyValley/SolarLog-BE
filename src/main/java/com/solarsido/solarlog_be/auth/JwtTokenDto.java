@@ -6,8 +6,10 @@ import lombok.Getter;
 public class JwtTokenDto {
   private String accessToken;
   private final String tokenType = "Bearer";
+  private String installLocation;
 
-  public JwtTokenDto(String accessToken) {
+  public JwtTokenDto(String accessToken, String installLocation) {
     this.accessToken = accessToken;
+    this.installLocation = installLocation;
   }
 }
