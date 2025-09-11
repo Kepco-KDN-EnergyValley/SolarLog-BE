@@ -18,6 +18,8 @@ import com.solarsido.solarlog_be.auth.JwtTokenProvider;
 //비밀번호 암호화
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 @Service // 이 클래스가 Service 컴포넌트임을 나타냅니다.
 @RequiredArgsConstructor // final 필드를 매개변수로 받는 생성자를 자동 생성
 public class UserService {
@@ -63,17 +65,27 @@ public class UserService {
     return memberRepository.existsByUserId(requestDto.getUserId());
   }
 
-  // 로그인 메소드 추가
+  // 로그인 메소드 수정
   public JwtTokenDto login(LoginRequestDto requestDto) {
     User member = memberRepository.findByUserId(requestDto.getUserId())
         .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));
 
-    // 비밀번호 일치 여부 확인 (BCryptPasswordEncoder의 matches 메소드 사용)
     if (!passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
       throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
     }
 
-    String accessToken = jwtTokenProvider.createToken(member.getUserId());
-    return new JwtTokenDto(accessToken);
+    // 이 부분이 추가되었습니다. 로그인한 사용자의 패널 정보 가져오기
+    Optional<SolarPanel> solarPanelOptional = solarPanelRepository.findByUser(member);
+    if (!solarPanelOptional.isPresent()) {
+      throw new RuntimeException("패널 정보가 없습니다.");
+    }
+
+    String installLocation = solarPanelOptional.get().getInstallLocation();
+
+    // 이 부분도 수정되었습니다. 토큰에 설치 위치를 담아 생성
+    String accessToken = jwtTokenProvider.createToken(member.getUserId(), installLocation);
+
+    // JWT 토큰 DTO에 설치 위치 정보를 담아 반환
+    return new JwtTokenDto(accessToken, installLocation);
   }
 }
