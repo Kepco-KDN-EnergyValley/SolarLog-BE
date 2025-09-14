@@ -17,6 +17,8 @@ public class CorsConfig {
 
     // 허용할 origin (프론트 배포 URL을 넣어주세요)
     config.setAllowedOrigins(List.of(
+        "http://solarlog.online",
+        "https://solarlog.online",
         "http://localhost:5173"      // 프론트 로컬 개발용
               // 프론트 배포 주소
     ));
