@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SnapShotService {
   // 사진 저장할 경로
-  private static final String SAVE_DIR = "/Users/doyeon/Desktop/SolarLog_Python/";
+  private static final String SAVE_DIR = "/home/ubuntu/SolarLog_Python/";
 
   // 사진 저장 및 파이썬 파일 실행
   public String saveSnapshotAndRunPython(String imageUrl) {
@@ -31,7 +31,7 @@ public class SnapShotService {
       // 4. Python 스크립트 실행
       ProcessBuilder pb = new ProcessBuilder(
           "python3",
-          "/Users/doyeon/Desktop/SolarLog_Python/roi_registers.py",
+          "/home/ubuntu/SolarLog_Python/roi_registers.py",
           savedPath
       );
       pb.inheritIO(); // 파이썬 로그를 자바 콘솔로 출력
