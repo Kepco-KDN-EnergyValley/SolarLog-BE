@@ -2,7 +2,6 @@ package com.solarsido.solarlog_be.config;
 
 // SecurityConfig.java
 
-import com.solarsido.solarlog_be.service.CustomUserDetailsService;
 import com.solarsido.solarlog_be.auth.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +21,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final CustomUserDetailsService customUserDetailsService;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
