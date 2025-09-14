@@ -36,8 +36,7 @@ public class SecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안 함
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/api/v1/signup", "/api/v1/signup/check-id", "/api/v1/users/login","/api/v1/history").permitAll()
-            .anyRequest().authenticated()
+            .anyRequest().permitAll()
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
