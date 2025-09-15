@@ -1,6 +1,5 @@
 package com.solarsido.solarlog_be.entity;
 
-import com.google.type.DateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,7 +11,6 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.cglib.core.Local;
 
 @Entity
 @Getter
@@ -38,6 +36,7 @@ public class Alarm {
   @Column(name = "is_read")
   private boolean isRead;
 
-
-
+  public void ChangeIsRead() {
+    this.isRead = true;
+  }
 }

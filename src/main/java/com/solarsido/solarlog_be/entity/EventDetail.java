@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum EventDetail {
-  Bird_droppings("조류 배설물"),
-  Dust("먼지"),
-  Snow("눈 쌓임"),
-  Electrical("전기적 결함"),
-  Physical("물리적 결함");
+  BIRD_DROPPINGS("조류 배설물"),
+  DUST("먼지"),
+  SNOW("눈 쌓임"),
+  ELECTRICAL("전기적 결함"),
+  PHYSICAL("물리적 결함");
 
   private final String description;
 

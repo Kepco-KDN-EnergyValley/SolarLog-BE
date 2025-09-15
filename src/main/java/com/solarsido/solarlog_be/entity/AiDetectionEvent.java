@@ -22,22 +22,24 @@ public class AiDetectionEvent {
   private Long eventId;
 
   @Enumerated(EnumType.STRING)
+  @Column(name = "event_type", nullable = false)
   private EventType eventType;
 
   @Enumerated(EnumType.STRING)
+  @Column(name = "event_detail", nullable = false)
   private EventDetail eventDetail;
 
-  @Column(name = "bboxX")
-  private float bboxX;
+  @Column(name = "bboxx")
+  private Float bboxX;
 
-  @Column(name = "bboxY")
-  private float bboxY;
+  @Column(name = "bboxy")
+  private Float bboxY;
 
-  @Column(name = "bboxW")
-  private float bboxW;
+  @Column(name = "bboxw")
+  private Float bboxW;
 
-  @Column(name = "bboxH")
-  private float bboxH;
+  @Column(name = "bboxh")
+  private Float bboxH;
 
   @Column(name = "image")
   private String image;
