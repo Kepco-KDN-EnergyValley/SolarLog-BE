@@ -32,6 +32,9 @@ public class Alarm {
   @Column(name = "is_read")
   private boolean isRead;
 
+  public void ChangeIsRead() {
+    this.isRead = true;
+  }
 
 
 }
