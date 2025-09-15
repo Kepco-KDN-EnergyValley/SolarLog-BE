@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum EventType {
-  Fault("결함"),
-  Pollution("오염");
+  FAULT("결함"),
+  POLLUTION("오염");
 
   private final String description;
 
