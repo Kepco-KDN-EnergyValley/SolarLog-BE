@@ -1,91 +1,80 @@
 package com.solarsido.solarlog_be.service;
 
 import com.solarsido.solarlog_be.auth.JwtTokenDto;
+import com.solarsido.solarlog_be.auth.JwtTokenProvider;
 import com.solarsido.solarlog_be.dto.member.CheckIdRequestDto;
 import com.solarsido.solarlog_be.dto.member.UserJoinRequestDto;
-import com.solarsido.solarlog_be.entity.User;
-import com.solarsido.solarlog_be.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.solarsido.solarlog_be.dto.member.LoginRequestDto;
 import com.solarsido.solarlog_be.entity.SolarPanel;
+import com.solarsido.solarlog_be.entity.User;
 import com.solarsido.solarlog_be.repository.SolarPanelRepository;
-
-
-//JWT 추가
-import com.solarsido.solarlog_be.auth.JwtTokenProvider;
-//비밀번호 암호화
+import com.solarsido.solarlog_be.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Service // 이 클래스가 Service 컴포넌트임을 나타냅니다.
-@RequiredArgsConstructor // final 필드를 매개변수로 받는 생성자를 자동 생성
+@Service
+@RequiredArgsConstructor
 public class UserService {
 
-  private final UserRepository memberRepository;
+  private final UserRepository userRepository;
   private final JwtTokenProvider jwtTokenProvider;
   private final PasswordEncoder passwordEncoder;
   private final SolarPanelRepository solarPanelRepository;
 
   @Transactional
   public void join(UserJoinRequestDto requestDto) {
-    // 1. 아이디 중복 확인
-    if (memberRepository.existsByUserId(requestDto.getUserId())) {
+    if (userRepository.existsByUserId(requestDto.getUserId())) {
       throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
     }
 
-    // 2. 유저 저장
     String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
-    User member = new User(requestDto.getUserId(), encodedPassword);
-    memberRepository.save(member);
+    User user = new User(requestDto.getUserId(), encodedPassword);
+    userRepository.save(user);
 
-    // 3. 패널 저장 (요청 DTO에서 가져온 값으로 생성)
     SolarPanel panel = new SolarPanel(
-        null, // PK 자동 생성
+        null,
         requestDto.getModelName(),
         requestDto.getMaker(),
         requestDto.getSerialNum(),
         requestDto.getInstallDate(),
         requestDto.getInstallLocation(),
-        0,                           // pollutionCount 초기값
-        0,                           // faultCount 초기값
-        requestDto.getInitialPower(),// initialPower
-        100,                         // leftLife (임의 기본값, 계산 로직 필요하면 수정)
-        requestDto.getInitialPower(),// capability (여기선 initialPower를 그대로 capability로 저장 예시)
-        member                       // User 매핑
+        0,
+        0,
+        requestDto.getInitialPower(),
+        100,
+        requestDto.getInitialPower(),
+        user
     );
     solarPanelRepository.save(panel);
   }
 
 
-  @Transactional(readOnly = true) // 데이터 변경 없이 조회만 할 때 사용합니다.
+  @Transactional(readOnly = true)
   public boolean checkUserIdDuplication(CheckIdRequestDto requestDto) {
-    return memberRepository.existsByUserId(requestDto.getUserId());
+    return userRepository.existsByUserId(requestDto.getUserId());
   }
 
-  // 로그인 메소드 수정
   public JwtTokenDto login(LoginRequestDto requestDto) {
-    User member = memberRepository.findByUserId(requestDto.getUserId())
+    User user = userRepository.findByUserId(requestDto.getUserId())
         .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));
 
-    if (!passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
+    if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
       throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
     }
 
-    // 이 부분이 추가되었습니다. 로그인한 사용자의 패널 정보 가져오기
-    Optional<SolarPanel> solarPanelOptional = solarPanelRepository.findByUser(member);
+    Optional<SolarPanel> solarPanelOptional = solarPanelRepository.findByUser(user);
     if (!solarPanelOptional.isPresent()) {
       throw new RuntimeException("패널 정보가 없습니다.");
     }
 
     String installLocation = solarPanelOptional.get().getInstallLocation();
 
-    // 이 부분도 수정되었습니다. 토큰에 설치 위치를 담아 생성
-    String accessToken = jwtTokenProvider.createToken(member.getUserId(), installLocation);
+    String accessToken = jwtTokenProvider.createToken(user.getUserId(), installLocation);
 
-    // JWT 토큰 DTO에 설치 위치 정보를 담아 반환
     return new JwtTokenDto(accessToken, installLocation);
   }
 }
