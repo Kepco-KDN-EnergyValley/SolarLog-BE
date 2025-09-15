@@ -29,15 +29,15 @@ public class PanelRoi {
   private SolarPanel solarPanel;
 
   @Column(name = "shape_data_x")
-  private float shapeDataX;
+  private Float shapeDataX;
 
   @Column(name = "shape_data_y")
-  private float shapeDataY;
+  private Float shapeDataY;
 
   @Column(name = "shpae_data_w")
-  private float shapeDataW;
+  private Float shapeDataW;
 
   @Column(name = "shape_data_h")
-  private float shapeDataH;
+  private Float shapeDataH;
 
 }
