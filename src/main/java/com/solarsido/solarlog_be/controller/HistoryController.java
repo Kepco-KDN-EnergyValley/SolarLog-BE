@@ -26,17 +26,18 @@ public class HistoryController {
 
   // 히스토리 조회
   @GetMapping("")
-  public ResponseEntity<HistoryResponseDto> getHistory(@RequestHeader("Authorization") String authHeader) {
+  public ResponseEntity<?> getHistory(@RequestHeader("Authorization") String authHeader) {
     // 헤더에서 Bearer 제거
     String jwtToken = authHeader.replace("Bearer ","");
     // 헤더에서 user.id 추출
     String userId = jwtTokenProvider.getUserId(jwtToken);
     // 히스토리 추출
-    List<HistoryResponseDto.AlarmList> histories = historyService.getAllHistory(userId);
-    // 히스토리 dto 생성
-    HistoryResponseDto historyResponseDto = new HistoryResponseDto(true, histories);
+    List<HistoryResponseDto> histories = historyService.getAllHistory(userId);
 
-    return ResponseEntity.ok(historyResponseDto);
+    return ResponseEntity.ok(Map.of(
+        "success",true,
+        "data",histories
+    ));
   }
 
   // 히스토리 상세 조회

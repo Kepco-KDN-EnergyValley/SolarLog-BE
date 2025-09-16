@@ -25,12 +25,12 @@ public class HistoryService {
   }
 
   // 히스토리 전체 조회
-  public List<HistoryResponseDto.AlarmList> getAllHistory(String userId) {
+  public List<HistoryResponseDto> getAllHistory(String userId) {
     User user = userRepository.findByUserId(userId).orElseThrow(()->new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
     List<Alarm> historyList = historyRepository.findAllBySolarPanel_UserOrderByAlarmDateDesc(user);
 
-    return historyList.stream().map(alarm -> new HistoryResponseDto.AlarmList(
+    return historyList.stream().map(alarm -> new HistoryResponseDto(
         alarm.getAlarmId(),
         alarm.getAlarmDate(),
         alarm.getSolarPanel().getModelName(),
