@@ -44,7 +44,7 @@ public class UserController {
       return new ResponseEntity<>(new ApiResponseDto<>(jwtTokenDto), HttpStatus.OK);
     } catch (IllegalArgumentException e) {
       // success를 false로, 메시지를 반환하도록 수정
-      return new ResponseEntity<>(new ApiResponseDto<>("아이디 또는 비밀번호가 올바르지 않습니다."), HttpStatus.UNAUTHORIZED);
+      return new ResponseEntity<>(new ApiResponseDto<>(false, "아이디 또는 비밀번호가 올바르지 않습니다."), HttpStatus.UNAUTHORIZED);
     }
   }
 }
