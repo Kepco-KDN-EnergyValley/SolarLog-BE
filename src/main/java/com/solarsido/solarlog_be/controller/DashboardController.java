@@ -5,6 +5,8 @@ import com.solarsido.solarlog_be.auth.JwtTokenProvider;
 import com.solarsido.solarlog_be.dto.dashboard.DashboardDailyResponseDto;
 import com.solarsido.solarlog_be.dto.dashboard.DashboardHourlyPowerResponseDto;
 import com.solarsido.solarlog_be.dto.dashboard.DashboardTodayResponseDto;
+import com.solarsido.solarlog_be.dto.dashboard.DashboardMonthlyResponseDto;
+import com.solarsido.solarlog_be.dto.dashboard.DashboardMonthlyPowerResponseDto;
 import com.solarsido.solarlog_be.service.DashboardService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -79,6 +81,40 @@ public class DashboardController {
       String userId = jwtTokenProvider.getUserId(accessToken);
 
       List<DashboardHourlyPowerResponseDto> responseDtoList = dashboardService.getDailyHourlyPower(userId, date);
+      return new ResponseEntity<>(new ApiResponseDto<>(responseDtoList), HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>(new ApiResponseDto<>(false, "유효하지 않은 토큰이거나 날짜 형식이 올바르지 않습니다."), HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  @GetMapping("/monthly")
+  public ResponseEntity<ApiResponseDto<DashboardMonthlyResponseDto>> getMonthlyStats(
+      @RequestHeader("Authorization") String tokenHeader,
+      @RequestParam int year,
+      @RequestParam int month
+  ) {
+    try {
+      String accessToken = tokenHeader.substring(7);
+      String userId = jwtTokenProvider.getUserId(accessToken);
+
+      DashboardMonthlyResponseDto responseDto = dashboardService.getMonthlyStats(userId, year, month);
+      return new ResponseEntity<>(new ApiResponseDto<>(responseDto), HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>(new ApiResponseDto<>(false, "유효하지 않은 토큰이거나 날짜 형식이 올바르지 않습니다."), HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  @GetMapping("/monthly-inquiry")
+  public ResponseEntity<ApiResponseDto<List<DashboardMonthlyPowerResponseDto>>> getMonthlyInquiry(
+      @RequestHeader("Authorization") String tokenHeader,
+      @RequestParam int year,
+      @RequestParam int month
+  ) {
+    try {
+      String accessToken = tokenHeader.substring(7);
+      String userId = jwtTokenProvider.getUserId(accessToken);
+
+      List<DashboardMonthlyPowerResponseDto> responseDtoList = dashboardService.getMonthlyInquiry(userId, year, month);
       return new ResponseEntity<>(new ApiResponseDto<>(responseDtoList), HttpStatus.OK);
     } catch (Exception e) {
       return new ResponseEntity<>(new ApiResponseDto<>(false, "유효하지 않은 토큰이거나 날짜 형식이 올바르지 않습니다."), HttpStatus.UNAUTHORIZED);
