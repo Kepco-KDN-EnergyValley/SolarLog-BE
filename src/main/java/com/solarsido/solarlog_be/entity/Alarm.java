@@ -1,5 +1,6 @@
 package com.solarsido.solarlog_be.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,7 +30,7 @@ public class Alarm {
   @JoinColumn(name = "panel_id")
   private SolarPanel solarPanel;
 
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "event_id")
   private AiDetectionEvent aiDetectionEvent;
 
