@@ -1,5 +1,6 @@
 package com.solarsido.solarlog_be.service;
 
+import com.solarsido.solarlog_be.dto.dashboard.DashboardDailyResponseDto;
 import com.solarsido.solarlog_be.dto.dashboard.DashboardHourlyPowerResponseDto;
 import com.solarsido.solarlog_be.dto.dashboard.DashboardTodayResponseDto;
 import com.solarsido.solarlog_be.entity.PanelData;
@@ -8,12 +9,13 @@ import com.solarsido.solarlog_be.entity.User;
 import com.solarsido.solarlog_be.repository.PanelDataRepository;
 import com.solarsido.solarlog_be.repository.SolarPanelRepository;
 import com.solarsido.solarlog_be.repository.UserRepository;
+import java.time.LocalTime;
+import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +28,9 @@ public class DashboardService {
   private final UserRepository userRepository;
   private final SolarPanelRepository solarPanelRepository;
   private final PanelDataRepository panelDataRepository;
+
+  private static final float CO2_EMISSION_FACTOR = 0.43f;
+  // Co2 절감량 계산에 필요한 1kWh의 전기를 생산했을 때 절약되는 CO2의 양 (배출계수)
 
   // API 1: '오늘의 발전량' (요약 정보)
   public DashboardTodayResponseDto getTodaySummary(String userId) {
@@ -80,6 +85,78 @@ public class DashboardService {
           // getOrDefault()의 반환 값이 Double 객체이므로 floatValue() 메소드를 사용
           float power = hourlyPower.getOrDefault(hour, 0.0).floatValue();
           LocalDateTime hourTime = todayStart.withHour(hour);
+          return new DashboardHourlyPowerResponseDto(hourTime, power);
+        })
+        .collect(Collectors.toList());
+  }
+
+  // API 3: '일별 통계' (날짜별 요약 정보)
+  public DashboardDailyResponseDto getDailyStats(String userId, LocalDate date) {
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    SolarPanel solarPanel = solarPanelRepository.findByUser(user)
+        .orElseThrow(() -> new IllegalArgumentException("패널 정보를 찾을 수 없습니다."));
+
+    LocalDateTime dayStart = date.atStartOfDay();
+    LocalDateTime dayEnd = dayStart.plusDays(1).minusNanos(1);
+
+    List<PanelData> selectedDayData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, dayStart, dayEnd);
+
+    if (selectedDayData.isEmpty()) {
+      return new DashboardDailyResponseDto("데이터 없음", 0.0f, 0.0f, 0.0f, 0.0f);
+    }
+
+    PanelData peakPowerData = selectedDayData.stream()
+        .max(Comparator.comparing(PanelData::getPower))
+        .orElse(null);
+    String peakPowerTime = peakPowerData.getMeasuredDate().getHour() + "시";
+    float peakPower = peakPowerData.getPower();
+
+    float totalDailyPower = (float) selectedDayData.stream()
+        .mapToDouble(PanelData::getPower)
+        .sum();
+
+    float co2Reduction = totalDailyPower * CO2_EMISSION_FACTOR;
+
+    LocalDate yesterday = date.minusDays(1);
+    LocalDateTime yesterdayStart = yesterday.atStartOfDay();
+    LocalDateTime yesterdayEnd = yesterdayStart.plusDays(1).minusNanos(1);
+
+    List<PanelData> yesterdayData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, yesterdayStart, yesterdayEnd);
+    float totalYesterdayPower = (float) yesterdayData.stream()
+        .mapToDouble(PanelData::getPower)
+        .sum();
+
+    float dayCompared = 0.0f;
+    if (totalYesterdayPower > 0) {
+      dayCompared = ((totalDailyPower - totalYesterdayPower) / totalYesterdayPower) * 100.0f;
+    }
+
+    return new DashboardDailyResponseDto(peakPowerTime, peakPower, totalDailyPower, co2Reduction, dayCompared);
+  }
+
+  // API 4: '일별 한시간단위 발전량 조회' (특정 날짜 기준)
+  public List<DashboardHourlyPowerResponseDto> getDailyHourlyPower(String userId, LocalDate date) {
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    SolarPanel solarPanel = solarPanelRepository.findByUser(user)
+        .orElseThrow(() -> new IllegalArgumentException("패널 정보를 찾을 수 없습니다."));
+
+    LocalDateTime dayStart = date.atStartOfDay().withHour(5);
+    LocalDateTime dayEnd = date.atTime(LocalTime.of(21, 59, 59, 999999999));
+
+    List<PanelData> dailyData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, dayStart, dayEnd);
+
+    Map<Integer, Double> hourlyPower = dailyData.stream()
+        .collect(Collectors.groupingBy(
+            data -> data.getMeasuredDate().getHour(),
+            Collectors.summingDouble(PanelData::getPower)
+        ));
+
+    return IntStream.rangeClosed(5, 21)
+        .mapToObj(hour -> {
+          float power = hourlyPower.getOrDefault(hour, 0.0).floatValue();
+          LocalDateTime hourTime = dayStart.withHour(hour);
           return new DashboardHourlyPowerResponseDto(hourTime, power);
         })
         .collect(Collectors.toList());
