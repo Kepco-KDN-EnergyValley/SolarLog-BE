@@ -34,8 +34,8 @@ public class HistoryService {
         alarm.getAlarmId(),
         alarm.getAlarmDate(),
         alarm.getSolarPanel().getModelName(),
-        alarm.getAiDetectionEvent().getEventType(),
-        alarm.getAiDetectionEvent().getEventDetail(),
+        alarm.getAiDetectionEvent().getEventType().getDescription(),
+        alarm.getAiDetectionEvent().getEventDetail().getDescription(),
         alarm.isRead()
     )).toList();
   }
