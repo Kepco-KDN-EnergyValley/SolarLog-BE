@@ -40,4 +40,20 @@ public class PanelRoi {
   @Column(name = "shape_data_h")
   private Float shapeDataH;
 
+  public Float getXStart() {
+    return shapeDataX;
+  }
+
+  public Float getYStart() {
+    return shapeDataY;
+  }
+
+  public Float getXEnd() {
+    return shapeDataX + shapeDataW;
+  }
+
+  public Float getYEnd() {
+    return shapeDataY + shapeDataH;
+  }
+
 }
