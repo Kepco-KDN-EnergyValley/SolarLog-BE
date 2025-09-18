@@ -1,7 +1,5 @@
 package com.solarsido.solarlog_be.dto;
 
-import com.solarsido.solarlog_be.entity.EventDetail;
-import com.solarsido.solarlog_be.entity.EventType;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,8 +14,8 @@ public class HistoryResponseDto {
     private Long alarmId;
     private LocalDateTime alarmDate;
     private String modelName;
-    private EventType eventType;
-    private EventDetail eventDetail;
+    private String eventType;
+    private String eventDetail;
     private boolean isRead;
 
 }
