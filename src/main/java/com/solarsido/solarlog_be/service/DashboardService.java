@@ -111,13 +111,13 @@ public class DashboardService {
     List<PanelData> selectedDayData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, dayStart, dayEnd);
 
     if (selectedDayData.isEmpty()) {
-      return new DashboardDailyResponseDto("데이터 없음", 0.0f, 0.0f, 0.0f, 0.0f);
+      return new DashboardDailyResponseDto(0, 0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     PanelData peakPowerData = selectedDayData.stream()
         .max(Comparator.comparing(PanelData::getPower))
         .orElse(null);
-    String peakPowerTime = peakPowerData.getMeasuredDate().getHour() + "시";
+    int peakPowerTime = peakPowerData.getMeasuredDate().getHour();
     float peakPower = peakPowerData.getPower();
 
     float totalDailyPower = (float) selectedDayData.stream()
@@ -184,7 +184,7 @@ public class DashboardService {
     List<PanelData> selectedMonthData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, monthStart, monthEnd);
 
     if (selectedMonthData.isEmpty()) {
-      return new DashboardMonthlyResponseDto("데이터 없음", 0.0f, 0.0f, 0.0f, 0.0f);
+      return new DashboardMonthlyResponseDto(0, 0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     // 최고 출력량 및 일자 계산
@@ -197,7 +197,7 @@ public class DashboardService {
     Optional<Entry<LocalDate, Double>> peakPowerEntry = dailyPower.entrySet().stream()
         .max(Comparator.comparing(Map.Entry::getValue));
 
-    String peakPowerDay = peakPowerEntry.map(entry -> entry.getKey().getDayOfMonth() + "일").orElse("데이터 없음");
+    int peakPowerDay = peakPowerEntry.map(entry -> entry.getKey().getDayOfMonth()).orElse(0);
     float peakPower = peakPowerEntry.map(entry -> (float) entry.getValue().doubleValue()).orElse(0.0f);
 
     // 총 발전량 계산

@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class DashboardMonthlyResponseDto {
-  private String peakPowerDay;
+  private int peakPowerDay;
   private float peakPower;
   private float totalMonthlyPower;
   private float co2Reduction;
