@@ -249,7 +249,7 @@ public class DashboardService {
     for (int i = 1; i <= daysInMonth; i += 7) {
       int startDay = i;
       int endDay = Math.min(i + 6, daysInMonth);
-      String period = String.format("%d일~%d일", startDay, endDay);
+      String period = String.format("%d~%d", startDay, endDay);
 
       // 해당 기간의 발전량 계산
       double powerSum = monthlyData.stream()
