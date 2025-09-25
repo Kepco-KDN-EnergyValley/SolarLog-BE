@@ -3,7 +3,6 @@ package com.solarsido.solarlog_be.service;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
 import com.solarsido.solarlog_be.dto.AiDetectionDto;
 import com.solarsido.solarlog_be.dto.SendAlarmDto;
 import com.solarsido.solarlog_be.entity.AiDetectionEvent;
@@ -16,7 +15,6 @@ import com.solarsido.solarlog_be.repository.AiDetectionEventRepository;
 import com.solarsido.solarlog_be.repository.AiDetectionRepository;
 import com.solarsido.solarlog_be.repository.FcmTokenRepository;
 import com.solarsido.solarlog_be.repository.PanelRoiRepository;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -84,10 +82,10 @@ public class AiDetectionService {
     // 유저의 모든 FCM 토큰 조회 후 전송
     matchedPanel.getUser().getFcmTokens().forEach(fcm -> {
       try {
-        Notification notification = Notification.builder()
+        //Notification notification = Notification.builder()
             //.setTitle(title)
             //.setBody(body)
-            .build();
+         //   .build();
 
         Message message = Message.builder()
             .setToken(fcm.getFcmToken())
