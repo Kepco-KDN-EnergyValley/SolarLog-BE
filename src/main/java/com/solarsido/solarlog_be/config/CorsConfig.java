@@ -19,8 +19,9 @@ public class CorsConfig {
     config.setAllowedOrigins(List.of(
         "http://solarlog.online",
         "https://solarlog.online",
-        "http://localhost:5173"      // 프론트 로컬 개발용
-              // 프론트 배포 주소
+        "http://localhost:5173",      // 프론트 로컬 개발용
+        "https://solarlog-fe.vercel.app",     // 프론트 배포 주소
+        "http://localhost:4173"
     ));
 
     // 허용할 HTTP 메서드

@@ -45,7 +45,7 @@ public class UserService {
         0,
         0,
         requestDto.getInitialPower(),
-        100,
+        0,
         requestDto.getInitialPower(),
         user
     );
