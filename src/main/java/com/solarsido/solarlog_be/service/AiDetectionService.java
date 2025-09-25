@@ -16,6 +16,9 @@ import com.solarsido.solarlog_be.repository.AiDetectionEventRepository;
 import com.solarsido.solarlog_be.repository.AiDetectionRepository;
 import com.solarsido.solarlog_be.repository.FcmTokenRepository;
 import com.solarsido.solarlog_be.repository.PanelRoiRepository;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,31 +66,32 @@ public class AiDetectionService {
     detectionEvent.setImage(dto.getImage());
 
     AiDetectionEvent savedEvent = aiDetectionEventRepository.save(detectionEvent);
+    ZonedDateTime seoulTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 
     // 4. 알람 생성
     Alarm alarm = new Alarm();
     alarm.setSolarPanel(matchedPanel);
     alarm.setAiDetectionEvent(savedEvent);
+    alarm.setAlarmDate(seoulTime.toLocalDateTime());
     alarm.setRead(false);
 
     Alarm savedAlarm = aiDetectionRepository.save(alarm);
 
     // 5. FCM 푸시 전송
-    String title = "태양광 패널 알림";
-    String body = matchedPanel.getModelName() + "에서 "
-        + savedEvent.getEventType().getDescription() + " 발생";
+    //String title = savedEvent.getEventType().getDescription();
+    //String body = savedEvent.getEventDetail().getDescription();
 
     // 유저의 모든 FCM 토큰 조회 후 전송
     matchedPanel.getUser().getFcmTokens().forEach(fcm -> {
       try {
         Notification notification = Notification.builder()
-            .setTitle(title)
-            .setBody(body)
+            //.setTitle(title)
+            //.setBody(body)
             .build();
 
         Message message = Message.builder()
             .setToken(fcm.getFcmToken())
-            .setNotification(notification)
+            //.setNotification(notification)
             .putData("alarmId", String.valueOf(savedAlarm.getAlarmId()))
             .putData("modelName",String.valueOf(savedAlarm.getSolarPanel().getModelName()))
             .putData("eventType", savedEvent.getEventType().getDescription())
