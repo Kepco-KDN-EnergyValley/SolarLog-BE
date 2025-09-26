@@ -5,10 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDate;
+import lombok.Setter;
 
 @Entity
 @Table(name = "solar_panel")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class SolarPanel {
