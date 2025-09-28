@@ -5,10 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
+import lombok.Setter;
 
 @Entity
 @Table(name = "panel_data")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PanelData {
@@ -25,5 +27,4 @@ public class PanelData {
   private float voltage;
   private float current;
   private float power;
-  private float co2;
 }

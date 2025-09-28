@@ -2,9 +2,13 @@
 
 package com.solarsido.solarlog_be.repository;
 
+import com.solarsido.solarlog_be.dto.DailyAverageDto;
 import com.solarsido.solarlog_be.entity.PanelData;
 import com.solarsido.solarlog_be.entity.SolarPanel;
+import java.time.LocalDate;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -17,4 +21,16 @@ public interface PanelDataRepository extends JpaRepository<PanelData, Long> {
 
   // 특정 패널의 모든 데이터 조회
   List<PanelData> findAllBySolarPanel(SolarPanel solarPanel);
+
+  // 일별 평균 발전량 조회
+  @Query("SELECT new com.solarsido.solarlog_be.dto.DailyAverageDto(" +
+      "DATE(p.measuredDate), AVG(p.power)) " +
+      "FROM PanelData p " +
+      "WHERE p.solarPanel.panelId = :panelId AND p.measuredDate BETWEEN :start AND :end " +
+      "GROUP BY DATE(p.measuredDate) " +
+      "ORDER BY DATE(p.measuredDate)")
+  List<DailyAverageDto> findDailyAverage(
+      @Param("panelId") Long panelId,
+      @Param("start") LocalDate start,
+      @Param("end") LocalDate end);
 }
