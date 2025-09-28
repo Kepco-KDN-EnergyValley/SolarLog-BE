@@ -32,13 +32,13 @@ public class LifeTimeScheduler {
     for (SolarPanel panel : panels) {
       Map<String, Object> body = new HashMap<>();
       body.put("panelId", panel.getPanelId());
-      body.put("initialPower", panel.getInitialPower());
+      body.put("installDate", panel.getInstallDate());
       body.put("history", lifeTimeSerivce.getMonthlyHistory(panel.getPanelId(), lastMonth));
 
       // 3. AI 서버 API 호출
       ResponseEntity<Map> response =
           restTemplate.postForEntity(
-              "http://localhost:8080/api/v1/lifetime/calculate",
+              "http://localhost:5001/api/v1/lifetime/calculate",
               body,
               Map.class
           );
