@@ -70,7 +70,7 @@ public class AiDetectionService {
     Alarm alarm = new Alarm();
     alarm.setSolarPanel(matchedPanel);
     alarm.setAiDetectionEvent(savedEvent);
-    alarm.setAlarmDate(seoulTime.toLocalDateTime());
+    alarm.setAlarmDate(ZonedDateTime.now(ZoneId.of("Asia/Seoul")));
     alarm.setRead(false);
 
     Alarm savedAlarm = aiDetectionRepository.save(alarm);
