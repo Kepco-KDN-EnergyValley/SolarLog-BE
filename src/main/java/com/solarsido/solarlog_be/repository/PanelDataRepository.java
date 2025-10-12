@@ -27,10 +27,19 @@ public interface PanelDataRepository extends JpaRepository<PanelData, Long> {
       "DATE(p.measuredDate), AVG(p.power)) " +
       "FROM PanelData p " +
       "WHERE p.solarPanel.panelId = :panelId AND p.measuredDate BETWEEN :start AND :end " +
-      "GROUP BY DATE(p.measuredDate) " +
-      "ORDER BY DATE(p.measuredDate)")
+      "GROUP BY FUNCTION('DATE', p.measuredDate) " +
+      "ORDER BY FUNCTION('DATE', p.measuredDate)")
   List<DailyAverageDto> findDailyAverage(
       @Param("panelId") Long panelId,
       @Param("start") LocalDate start,
       @Param("end") LocalDate end);
+
+  @Query("SELECT SUM(p.power) " +
+      "FROM PanelData p " +
+      "WHERE p.solarPanel.panelId = :panelId " +
+      "AND YEAR(p.measuredDate) = :year " +
+      "AND MONTH(p.measuredDate) = :month")
+  Double findMonthlyTotalPower(@Param("panelId") Long panelId,
+      @Param("year") int year,
+      @Param("month") int month);
 }

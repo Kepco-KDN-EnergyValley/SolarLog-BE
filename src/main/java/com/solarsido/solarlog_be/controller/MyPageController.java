@@ -33,7 +33,10 @@ public class MyPageController {
       return new ResponseEntity<>(new ApiResponseDto<>(responseDto), HttpStatus.OK);
     } catch (Exception e) {
       // 실패 시, ApiResponseDto로 감싸서 메시지를 반환하도록 수정
-      return new ResponseEntity<>(new ApiResponseDto<>(false, "유효하지 않은 토큰입니다."), HttpStatus.UNAUTHORIZED);
+      return new ResponseEntity<>(
+          new ApiResponseDto<>(false, "에러: " + e.getMessage()),
+          HttpStatus.BAD_REQUEST
+      );
     }
   }
 

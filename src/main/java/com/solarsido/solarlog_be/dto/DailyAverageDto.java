@@ -11,4 +11,8 @@ public class DailyAverageDto {
   private LocalDate date;
   private Double avgPower;
 
+  public DailyAverageDto(java.sql.Date sqlDate, Double avgPower) {
+    this.date = sqlDate.toLocalDate(); // LocalDate 변환
+    this.avgPower = avgPower;
+  }
 }

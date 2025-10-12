@@ -28,7 +28,6 @@ public class SolarPanel {
   private int faultCount;
   private float initialPower;
   private int leftLife;
-  private float capability;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id")

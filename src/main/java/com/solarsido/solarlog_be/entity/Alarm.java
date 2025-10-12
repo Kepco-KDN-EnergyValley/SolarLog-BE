@@ -10,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +24,7 @@ public class Alarm {
   private Long alarmId;
 
   @Column(name = "alarm_date")
-  private ZonedDateTime alarmDate;
+  private LocalDateTime alarmDate;
 
   @ManyToOne
   @JoinColumn(name = "panel_id")
