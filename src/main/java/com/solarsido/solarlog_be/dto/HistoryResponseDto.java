@@ -1,6 +1,7 @@
 package com.solarsido.solarlog_be.dto;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class HistoryResponseDto {
     private Long alarmId;
-    private LocalDateTime alarmDate;
+    private ZonedDateTime alarmDate;
     private String modelName;
     private String eventType;
     private String eventDetail;

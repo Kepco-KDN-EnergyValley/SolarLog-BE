@@ -1,8 +1,10 @@
 package com.solarsido.solarlog_be.service;
 
 import com.solarsido.solarlog_be.dto.mypage.MyPagePanelResponseDto;
+import com.solarsido.solarlog_be.entity.PanelData;
 import com.solarsido.solarlog_be.entity.SolarPanel;
 import com.solarsido.solarlog_be.entity.User;
+import com.solarsido.solarlog_be.repository.PanelDataRepository;
 import com.solarsido.solarlog_be.repository.SolarPanelRepository;
 import com.solarsido.solarlog_be.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,26 +20,40 @@ public class MyPageService {
 
   private final UserRepository userRepository;
   private final SolarPanelRepository solarPanelRepository;
+  private final PanelDataRepository panelDataRepository;
 
   public MyPagePanelResponseDto getMyPagePanelInfo(String userId) {
     // 1. 유저 정보 조회
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-    // 2. 유저의 패널 정보 조회 (한 유저당 하나의 패널만 있다고 가정)
-    // findAllByUser는 List를 반환하지만, 여기서는 첫 번째 패널만 가져옵니다.
-    SolarPanel solarPanel = solarPanelRepository.findAllByUser(user)
-        .stream()
-        .findFirst()
+    // 2. 유저의 패널 정보 조회 (하나의 패널만 있다고 가정)
+    SolarPanel solarPanel = solarPanelRepository.findByUser(user)
         .orElseThrow(() -> new IllegalArgumentException("패널 정보를 찾을 수 없습니다."));
 
-    // 3. DTO로 변환하여 반환
+    // 3. 정격 출력 (고정 0.05 kW = 50W)
+    float pRated = 0.05f;
+
+    List<PanelData> allData = panelDataRepository.findAllBySolarPanel(solarPanel);
+
+    // 실제 발전량 합계 (Eactual, kWh 단위라고 가정)
+    double eActual = allData.stream()
+        .mapToDouble(PanelData::getPower)
+        .sum();
+
+    // 정격 대비 발전량 (Specific Yield)
+    float calculatedCapability = 0.0f;
+    if (pRated > 0) {
+      calculatedCapability = (float) (eActual / pRated);
+    }
+
+    // 4. DTO로 변환하여 반환
     return new MyPagePanelResponseDto(
         solarPanel.getModelName(),
         solarPanel.getMaker(),
         solarPanel.getSerialNum(),
-        solarPanel.getCapability(),
-        solarPanel.getLeftLife() // double 타입을 int로 변환
+        calculatedCapability, // kWh/kWp 단위 지표
+        (int) solarPanel.getLeftLife()
     );
   }
 
