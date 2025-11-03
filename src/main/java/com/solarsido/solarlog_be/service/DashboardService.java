@@ -13,12 +13,15 @@ import com.solarsido.solarlog_be.repository.SolarPanelRepository;
 import com.solarsido.solarlog_be.repository.UserRepository;
 
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -47,8 +50,8 @@ public class DashboardService {
     SolarPanel solarPanel = solarPanelRepository.findByUser(user)
         .orElseThrow(() -> new IllegalArgumentException("패널 정보를 찾을 수 없습니다."));
 
-    LocalDateTime todayStart = LocalDate.now().atStartOfDay();
-    LocalDateTime todayEnd = LocalDateTime.now();
+    ZonedDateTime todayStart = LocalDate.now().atStartOfDay(ZoneId.of("Asia/Seoul"));
+    ZonedDateTime todayEnd = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 
     List<PanelData> todayData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, todayStart, todayEnd);
     List<PanelData> allData = panelDataRepository.findAllBySolarPanel(solarPanel);
@@ -74,10 +77,10 @@ public class DashboardService {
     SolarPanel solarPanel = solarPanelRepository.findByUser(user)
         .orElseThrow(() -> new IllegalArgumentException("패널 정보를 찾을 수 없습니다."));
 
-    LocalDateTime todayStart = LocalDate.now().atStartOfDay();
-    LocalDateTime todayEnd = LocalDateTime.now();
+    ZonedDateTime todayStart = LocalDate.now().atStartOfDay(ZoneId.of("Asia/Seoul"));
+    ZonedDateTime todayEnd = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 
-    LocalDateTime timeRangeStart = todayStart.withHour(5);
+    ZonedDateTime timeRangeStart = todayStart.withHour(5);
     int endHour = todayEnd.getHour();
 
     List<PanelData> dailyData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, timeRangeStart, todayEnd);
@@ -92,7 +95,7 @@ public class DashboardService {
         .mapToObj(hour -> {
           // getOrDefault()의 반환 값이 Double 객체이므로 floatValue() 메소드를 사용
           float power = hourlyPower.getOrDefault(hour, 0.0).floatValue();
-          LocalDateTime hourTime = todayStart.withHour(hour);
+          ZonedDateTime hourTime = todayStart.withHour(hour);
           return new DashboardHourlyPowerResponseDto(hourTime, power);
         })
         .collect(Collectors.toList());
@@ -105,8 +108,10 @@ public class DashboardService {
     SolarPanel solarPanel = solarPanelRepository.findByUser(user)
         .orElseThrow(() -> new IllegalArgumentException("패널 정보를 찾을 수 없습니다."));
 
-    LocalDateTime dayStart = date.atStartOfDay();
-    LocalDateTime dayEnd = dayStart.plusDays(1).minusNanos(1);
+    ZoneId seoulZone = ZoneId.of("Asia/Seoul");
+
+    ZonedDateTime dayStart = date.atStartOfDay(seoulZone);
+    ZonedDateTime dayEnd = dayStart.plusDays(1).minusNanos(1);
 
     List<PanelData> selectedDayData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, dayStart, dayEnd);
 
@@ -126,9 +131,8 @@ public class DashboardService {
 
     float co2Reduction = totalDailyPower * CO2_EMISSION_FACTOR;
 
-    LocalDate yesterday = date.minusDays(1);
-    LocalDateTime yesterdayStart = yesterday.atStartOfDay();
-    LocalDateTime yesterdayEnd = yesterdayStart.plusDays(1).minusNanos(1);
+    ZonedDateTime yesterdayStart = date.minusDays(1).atStartOfDay(seoulZone);
+    ZonedDateTime yesterdayEnd = yesterdayStart.plusDays(1).minusNanos(1);
 
     List<PanelData> yesterdayData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, yesterdayStart, yesterdayEnd);
     float totalYesterdayPower = (float) yesterdayData.stream()
@@ -150,8 +154,9 @@ public class DashboardService {
     SolarPanel solarPanel = solarPanelRepository.findByUser(user)
         .orElseThrow(() -> new IllegalArgumentException("패널 정보를 찾을 수 없습니다."));
 
-    LocalDateTime dayStart = date.atStartOfDay().withHour(5);
-    LocalDateTime dayEnd = date.atTime(LocalTime.of(21, 59, 59, 999999999));
+    ZonedDateTime dayStart = date.atStartOfDay(ZoneId.of("Asia/Seoul")).withHour(5);
+    ZonedDateTime dayEnd = date.atTime(LocalTime.of(21, 59, 59, 999999999))
+        .atZone(ZoneId.of("Asia/Seoul"));
 
     List<PanelData> dailyData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, dayStart, dayEnd);
 
@@ -164,7 +169,7 @@ public class DashboardService {
     return IntStream.rangeClosed(5, 21)
         .mapToObj(hour -> {
           float power = hourlyPower.getOrDefault(hour, 0.0).floatValue();
-          LocalDateTime hourTime = dayStart.withHour(hour);
+          ZonedDateTime hourTime = dayStart.withHour(hour);
           return new DashboardHourlyPowerResponseDto(hourTime, power);
         })
         .collect(Collectors.toList());
@@ -177,8 +182,11 @@ public class DashboardService {
     SolarPanel solarPanel = solarPanelRepository.findByUser(user)
         .orElseThrow(() -> new IllegalArgumentException("패널 정보를 찾을 수 없습니다."));
 
-    LocalDateTime monthStart = LocalDate.of(year, month, 1).atStartOfDay();
-    LocalDateTime monthEnd = monthStart.plusMonths(1).minusNanos(1);
+    ZoneId seoulZone = ZoneId.of("Asia/Seoul");
+
+    ZonedDateTime monthStart = LocalDate.of(year, month, 1).atStartOfDay(seoulZone);
+    ZonedDateTime monthEnd = monthStart.plusMonths(1).minusNanos(1);
+
 
     // 선택된 월의 데이터 조회
     List<PanelData> selectedMonthData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, monthStart, monthEnd);
@@ -209,8 +217,9 @@ public class DashboardService {
     float co2Reduction = totalMonthlyPower * CO2_EMISSION_FACTOR;
 
     // 전월 대비 증감률 계산
-    LocalDateTime prevMonthStart = monthStart.minusMonths(1);
-    LocalDateTime prevMonthEnd = monthStart.minusNanos(1);
+    ZonedDateTime prevMonthStart = monthStart.minusMonths(1);
+    ZonedDateTime prevMonthEnd = monthStart.minusNanos(1);
+
     List<PanelData> prevMonthData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, prevMonthStart, prevMonthEnd);
     float totalPrevMonthPower = (float) prevMonthData.stream()
         .mapToDouble(PanelData::getPower)
@@ -231,10 +240,12 @@ public class DashboardService {
     SolarPanel solarPanel = solarPanelRepository.findByUser(user)
         .orElseThrow(() -> new IllegalArgumentException("패널 정보를 찾을 수 없습니다."));
 
-    LocalDate monthStart = LocalDate.of(year, month, 1);
-    LocalDate monthEnd = monthStart.plusMonths(1).minusDays(1);
+    ZoneId seoulZone = ZoneId.of("Asia/Seoul");
 
-    List<PanelData> monthlyData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, monthStart.atStartOfDay(), monthEnd.atTime(23, 59, 59, 999999999));
+    ZonedDateTime monthStart = LocalDate.of(year, month, 1).atStartOfDay(seoulZone);
+    ZonedDateTime monthEnd = monthStart.plusMonths(1).minusNanos(1);
+
+    List<PanelData> monthlyData = panelDataRepository.findAllBySolarPanelAndMeasuredDateBetween(solarPanel, monthStart, monthEnd);
 
     // 주차별로 데이터를 그룹화하고 발전량을 합산
     Map<Integer, Double> weeklyPower = monthlyData.stream()

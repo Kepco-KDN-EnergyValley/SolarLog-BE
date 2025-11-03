@@ -46,7 +46,6 @@ public class UserService {
         0,
         requestDto.getInitialPower(),
         0,
-        requestDto.getInitialPower(),
         user
     );
     solarPanelRepository.save(panel);

@@ -1,10 +1,11 @@
 package com.solarsido.solarlog_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.Setter;
 
 @Entity
@@ -23,7 +24,10 @@ public class PanelData {
   @JoinColumn(name = "panel_id") // 외래 키 설정
   private SolarPanel solarPanel;
 
-  private LocalDateTime measuredDate;
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Asia/Seoul")
+  @Column(nullable = false)
+  private ZonedDateTime measuredDate;
+
   private float voltage;
   private float current;
   private float power;
