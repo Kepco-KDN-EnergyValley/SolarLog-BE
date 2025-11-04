@@ -5,7 +5,10 @@ import com.solarsido.solarlog_be.entity.SolarPanel;
 import com.solarsido.solarlog_be.repository.PanelDataRepository;
 import com.solarsido.solarlog_be.repository.SolarPanelRepository;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +33,11 @@ public class LifeTimeSerivce {
 
   //패널의 한 달간 일별 평균 발전량 조회
   public List<Map<String,Object>> getMonthlyHistory(Long panelId, YearMonth targetMonth){
-    LocalDate start = targetMonth.atDay(1);
-    LocalDate end = targetMonth.atEndOfMonth();
+    ZoneId seoulZone = ZoneId.of("Asia/Seoul");
+
+    ZonedDateTime start = targetMonth.atDay(1).atStartOfDay(seoulZone);
+    ZonedDateTime end = targetMonth.atEndOfMonth().atTime(LocalTime.MAX).atZone(seoulZone);
+
 
     List<DailyAverageDto> dailyAverages = panelDataRepository.findDailyAverage(panelId,start,end);
 
