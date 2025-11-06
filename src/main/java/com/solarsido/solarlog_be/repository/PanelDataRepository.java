@@ -6,6 +6,7 @@ import com.solarsido.solarlog_be.dto.DailyAverageDto;
 import com.solarsido.solarlog_be.entity.PanelData;
 import com.solarsido.solarlog_be.entity.SolarPanel;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,7 @@ import java.util.List;
 @Repository
 public interface PanelDataRepository extends JpaRepository<PanelData, Long> {
   // 특정 패널의 특정 날짜 데이터만 조회
-  List<PanelData> findAllBySolarPanelAndMeasuredDateBetween(SolarPanel solarPanel, LocalDateTime start, LocalDateTime end);
+  List<PanelData> findAllBySolarPanelAndMeasuredDateBetween(SolarPanel solarPanel, ZonedDateTime start, ZonedDateTime end);
 
   // 특정 패널의 모든 데이터 조회
   List<PanelData> findAllBySolarPanel(SolarPanel solarPanel);
@@ -31,8 +32,8 @@ public interface PanelDataRepository extends JpaRepository<PanelData, Long> {
       "ORDER BY FUNCTION('DATE', p.measuredDate)")
   List<DailyAverageDto> findDailyAverage(
       @Param("panelId") Long panelId,
-      @Param("start") LocalDate start,
-      @Param("end") LocalDate end);
+      @Param("start") ZonedDateTime start,
+      @Param("end") ZonedDateTime end);
 
   @Query("SELECT SUM(p.power) " +
       "FROM PanelData p " +
