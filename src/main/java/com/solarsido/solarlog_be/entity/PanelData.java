@@ -25,9 +25,8 @@ public class PanelData {
   @JoinColumn(name = "panel_id") // 외래 키 설정
   private SolarPanel solarPanel;
 
-  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Asia/Seoul")
   @Column(nullable = false)
-  private ZonedDateTime measuredDate;
+  private LocalDateTime measuredDate;
 
   private float voltage;
   private float current;
