@@ -1,7 +1,6 @@
 package com.solarsido.solarlog_be.dto.dashboard;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import java.time.LocalDateTime;
@@ -9,7 +8,9 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class DashboardHourlyPowerResponseDto {
-  @Column(nullable = false)
+  @JsonFormat(shape = JsonFormat.Shape.STRING,
+      pattern = "yyyy-MM-dd'T'HH:mm:ss",
+      timezone = "Asia/Seoul")
   private LocalDateTime measuredDate;
   private float power;
 }
